@@ -4,10 +4,18 @@ from maze import Maze
 from pathFinder import PathFinder
 import sys
 import numpy
+import pyglet
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = SCREEN_WIDTH
 SCREEN_TITLE = "Path Finding Project"
+MAZE_SIZE = 30
+UPDATE_RATE = 1/60
+
+#chosen Monitor
+MONITOR_NUM = 0
+MONITORS = pyglet.canvas.Display().get_screens()
+MONITOR = MONITORS[MONITOR_NUM]
 
 
 class MyProject(arcade.Window):
@@ -22,12 +30,13 @@ class MyProject(arcade.Window):
         # Create your sprites and sprite lists here
             #temp
         sys.setrecursionlimit(30000)
-        self.set_update_rate(1/60)
-        mazeGen = MazeGenerator(30, SCREEN_WIDTH)
+        self.set_update_rate(UPDATE_RATE)
+        self.center_on_screen()
+        mazeGen = MazeGenerator(MAZE_SIZE, SCREEN_WIDTH)
         mazeMap = mazeGen.generateMaze()
         self.maze = Maze(mazeMap, SCREEN_WIDTH)
         self.pf = PathFinder(mazeMap)
-        self.path, self.visited = self.pf.depth_first_search()        
+        self.path, self.visited = self.pf.iterative_depth_first_search(1, 1000)        
         pass
 
     def on_draw(self):
@@ -62,13 +71,18 @@ class MyProject(arcade.Window):
     def on_key_press(self, key, key_modifiers):
 
         if key == arcade.key.R:
-            mazeGen = MazeGenerator(30, SCREEN_WIDTH)
+            mazeGen = MazeGenerator(MAZE_SIZE, SCREEN_WIDTH)
             mazeMap = mazeGen.generateMaze()
             self.maze = Maze(mazeMap, SCREEN_WIDTH)
             self.pf = PathFinder(mazeMap)
-            self.path, self.visited = self.pf.depth_first_search() 
+            self.path, self.visited = self.pf.iterative_depth_first_search(1, 1000) 
 
         pass
+
+    def center_on_screen(self):
+        _left = MONITOR.width // 2 - self.width // 2
+        _top = -(MONITOR.height - self.height // 4)
+        self.set_location(_left, _top)
 
 def main():
     """ Main function """
