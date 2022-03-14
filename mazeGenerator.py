@@ -2,20 +2,30 @@ from pickle import FALSE, TRUE
 import numpy
 import random
 
+WALL = 0
+EMPTY_CELL = 1
 
 class MazeGenerator():
 
+    #init the maze generator 
     def __init__(self, size, maze_width):
+        #maze size is self.maze_size x self.maze_size
         self.maze_size = size
-        self.maze_width = maze_width
-        self.tile_size = self.maze_width / (self.maze_size + 2)
+        
+        #set maze to a new 2d maze_size x maze_size array filled with zeros
         self.maze = numpy.zeros(shape = (self.maze_size, self.maze_size))
+
+        #generate a new maze and assign self.maze to it
         self.generateMaze()
    
     def generateMaze(self):
+        #set visited to an empty array
         visited = numpy.array([])
+
+        #generate the maze
         self.depth_first_search_with_backtracking(self.maze, Cell(0,0), visited)
 
+        #I always set the endCell in the rigth top corner, so i want to make sure it is always connected to the rest of the maze
         counter = self.maze_size - 1
         while(self.maze[counter][self.maze_size - 1] == 0):
             self.maze[counter][self.maze_size - 1] = 1
@@ -23,7 +33,7 @@ class MazeGenerator():
 
         return self.maze
 
-
+    #check if the visited list includes the cell
     def isVisited(self, cell, visited):
         for i in range (visited.size):
             if(visited[i].x == cell.x and visited[i].y == cell.y):
@@ -31,22 +41,37 @@ class MazeGenerator():
 
         return False
 
+    #depth first search with backtracking used to create a maze
     def depth_first_search_with_backtracking(self, maze, cell, visited):
 
-        maze[cell.x][cell.y] = 1
+        #remove wall from the cell
+        maze[cell.x][cell.y] = EMPTY_CELL
+
+        #add the cell to visited
         visited = numpy.append(visited, cell)
+
+        #get all neighbours of the cell
         neighbours = cell.getNeighbours(self.maze_size)
 
+        #for all neighbours
         while neighbours.size != 0:
+
+            #pick random neighbour
             index = random.randint(0, neighbours.size - 1)
+
+            #if chosen neighbour was not visited
             if(not self.isVisited(neighbours[index], visited)):
+
+                #if the neighbour has at least 3 walls around itself recursivly call depth first search with backtracking from the neighbour
                 if(self.countWalls(neighbours[index]) >= 3):
                     visited = self.depth_first_search_with_backtracking(maze, neighbours[index], visited)
                
-
+            #delete the neighbour from neighbours arary
             neighbours = numpy.delete(neighbours, index)    
                 
         return visited
+
+        #count how many walls there are around the cell
     def countWalls(self, cell):
         counter = 0
 
@@ -70,6 +95,7 @@ class MazeGenerator():
 
         return counter
 
+#tuple of x and y coordinates in the maze
 class Cell(): 
     def __init__(self, x, y):
         self.x = x
