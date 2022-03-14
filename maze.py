@@ -1,5 +1,12 @@
 import arcade
 import numpy
+
+WALL = 0
+EMPTY_CELL = 1
+PATH = 2
+VISITED = 3
+
+
 class Maze:
     #init the maze
     def __init__(self, maze, width):
@@ -46,11 +53,11 @@ class Maze:
         #draw walls
         for i in range(self.maze_size):
             for j in range(self.maze_size):
-                if(self.maze[i][j] == 0):
+                if(self.maze[i][j] == WALL):
                     self.drawRect(i, j, arcade.color.BLACK)
-                elif(self.maze[i][j] == 2):
+                elif(self.maze[i][j] == PATH):
                     self.drawRect(i, j, arcade.color.BLUE)
-                elif(self.maze[i][j] == 3):
+                elif(self.maze[i][j] == VISITED):
                     self.drawRect(i, j, arcade.color.GREEN)
 
         #draw starting and ending point
